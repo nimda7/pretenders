@@ -3,6 +3,7 @@ import json
 
 from pretenders.common.constants import FOREVER
 
+
 def get_timedelta_from_string(string):
     data = string.split(":")
     time = timedelta(hours=int(data[0]),
@@ -62,3 +63,8 @@ class PretenderModel(object):
     def keep_alive(self):
         "Refresh the last_call date to keep this server up"
         self.last_call = datetime.now()
+
+    @property
+    def is_expired(self):
+        return (self.timeout != FOREVER and
+                datetime.now() - self.last_call > self.timeout)

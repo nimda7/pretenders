@@ -43,8 +43,9 @@ def exists_or_404(protocol, uid):
     try:
         get_pretenders(protocol)[uid]
     except KeyError:
-        raise HTTPResponse("No matching {0} mock: {1}".format(protocol, uid),
-                            status=404)
+        raise HTTPResponse(
+            "No matching {0} mock: {1}".format(protocol, uid),
+            status=404)
 
 
 @app.get('/<protocol:re:(http|smtp)>')
@@ -119,8 +120,6 @@ def pretender_delete(protocol):
         for uid, server in get_pretenders(protocol).copy().items():
 
             LOGGER.debug("Pretender: {0}".format(server))
-            if server.timeout == FOREVER:
-                continue
-            if server.last_call + server.timeout < now:
+            if server.is_expired:
                 LOGGER.info("Deleting pretender with UID: {0}".format(uid))
                 delete_mock(protocol, uid)
