@@ -2,6 +2,7 @@ import os
 import time
 import subprocess
 import sys
+import logging
 
 from pretenders.server import data
 from pretenders.client import BossClient
@@ -18,8 +19,14 @@ def run(host, port):
     boss_client = BossClient(host, port)
     while True:
         time.sleep(STALE_DELETE_FREQUENCY)
-        boss_client.boss_access.http('DELETE', url='/smtp?stale=1')
-        boss_client.boss_access.http('DELETE', url='/http?stale=1')
+        try:
+            boss_client.boss_access.http('DELETE', url='/smtp?stale=1')
+        except Exception as e1:
+            logging.error('Error on deleting SMTP presets: {}'.format(e1.message))
+        try:
+            boss_client.boss_access.http('DELETE', url='/http?stale=1')
+        except Exception as e2:
+            logging.error('Error on deleting HTTP presets: {}'.format(e2.message))
 
 
 def launch_maintainer():
